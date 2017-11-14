@@ -159,7 +159,7 @@ class MoreInfoConfigurator extends Polymer.Element {
       }
       // set default if no value is present.
       if (typeof this.getFieldInput(field.id) === 'undefined') {
-        this.setFieldInput(field.id, field.default)
+        this.setFieldInput(field.id, field.default);
       }
       values[field.id] = field.default;
     }, this);
@@ -167,7 +167,7 @@ class MoreInfoConfigurator extends Polymer.Element {
   }
 
   getFieldInput(id) {
-    return this.fieldInput[this.configuratorId][id]
+    return this.fieldInput[this.configuratorId][id];
   }
 
   setFieldInput(id, value) {
@@ -176,7 +176,7 @@ class MoreInfoConfigurator extends Polymer.Element {
 
   ensureFieldInputForThisConfigurator() {
     if (!(this.configuratorId in this.fieldInput)) {
-      this.fieldInput[this.configuratorId] = {}
+      this.fieldInput[this.configuratorId] = {};
     }
   }
 
