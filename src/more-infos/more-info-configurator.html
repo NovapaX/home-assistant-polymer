@@ -69,6 +69,7 @@
             label='[[item.name]]'
             name='[[item.id]]'
             type='[[item.type]]'
+            value='[[getFieldInput(item.id)]]'
             on-change='fieldChanged'
           ></paper-input>
         </template>
@@ -103,6 +104,11 @@ class MoreInfoConfigurator extends Polymer.Element {
         type: Object,
       },
 
+      configuratorId: {
+        type: String,
+        computed: 'computeConfiguratorId(stateObj)'
+      },
+
       action: {
         type: String,
         value: 'display',
@@ -122,6 +128,11 @@ class MoreInfoConfigurator extends Polymer.Element {
         type: Object,
         value: function () { return {}; },
       },
+
+      fieldInputDefaults: {
+        type: Object,
+        computed: 'computeFieldInputDefaults(stateObj)'
+      },
     };
   }
 
@@ -129,15 +140,50 @@ class MoreInfoConfigurator extends Polymer.Element {
     return stateObj.state === 'configure';
   }
 
+  computeConfiguratorId(stateObj) {
+    return stateObj.attributes.configure_id;
+  }
+
   fieldChanged(ev) {
     var el = ev.target;
-    this.fieldInput[el.name] = el.value;
+    this.setFieldInput(el.name, el.value);
+  }
+
+  computeFieldInputDefaults(stateObj) {
+    this.ensureFieldInputForThisConfigurator();
+    var values = {};
+    stateObj.attributes.fields.forEach(function (field) {
+      // skip if no default value given
+      if (typeof field.default === 'undefined') {
+        return;
+      }
+      // set default if no value is present.
+      if (typeof this.getFieldInput(field.id) === 'undefined') {
+        this.setFieldInput(field.id, field.default)
+      }
+      values[field.id] = field.default;
+    }, this);
+    return values;
+  }
+
+  getFieldInput(id) {
+    return this.fieldInput[this.configuratorId][id]
+  }
+
+  setFieldInput(id, value) {
+    this.fieldInput[this.configuratorId][id] = value;
+  }
+
+  ensureFieldInputForThisConfigurator() {
+    if (!(this.configuratorId in this.fieldInput)) {
+      this.fieldInput[this.configuratorId] = {}
+    }
   }
 
   submitClicked() {
     var data = {
-      configure_id: this.stateObj.attributes.configure_id,
-      fields: this.fieldInput,
+      configure_id: this.configuratorId,
+      fields: this.fieldInput[this.configuratorId],
     };
 
     this.isConfiguring = true;
