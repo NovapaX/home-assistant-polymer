@@ -5,6 +5,10 @@
 <!-- <link rel="import" href="../../bower_components/neon-animation/animations/slide-up-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
  -->
+
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+
 <link rel="import" href="../state-summary/state-card-content.html">
 <link rel="import" href="../components/state-history-charts.html">
 <link rel="import" href="../more-infos/more-info-content.html">
@@ -18,6 +22,7 @@
         font-size: 14px;
         width: 365px;
         border-radius: 2px;
+        overflow: auto;
       }
 
       paper-dialog[data-domain=camera] {
@@ -41,6 +46,19 @@
       state-card-content {
         margin-bottom: 24px;
         font-size: 14px;
+      }
+
+      div.head {
+        margin-top: 0;
+        overflow: auto;
+        background-color: var(--secondary-background-color);
+      }
+
+      paper-tabs {
+        margin-left: 12px;
+        --paper-tabs-selection-bar-color: var(--secondary-text-color);
+        --paper-tab-ink: var(--secondary-text-color);
+        text-transform: uppercase;
       }
 
       @media all and (max-width: 450px), all and (max-height: 500px) {
@@ -70,32 +88,46 @@
 
     <!-- entry-animation='slide-up-animation' exit-animation='slide-down-animation' -->
     <paper-dialog id="dialog" with-backdrop opened='{{dialogOpen}}' data-domain$='[[computeDomain(stateObj)]]'>
-      <h2>
-        <state-card-content
-          state-obj="[[stateObj]]"
-          hass='[[hass]]' in-dialog></state-card-content>
-      </h2>
-      <template is='dom-if' if="[[showHistoryComponent]]" restamp>
-        <div>
-          <ha-state-history-data
-            hass='[[hass]]'
-            filter-type='recent-entity'
-            entity-id='[[stateObj.entity_id]]'
-            data='{{stateHistory}}'
-            is-loading='{{stateHistoryLoading}}'
-            cache-config='[[computeCacheConfig(stateObj)]]'
-          ></ha-state-history-data>
-          <state-history-charts
-            history-data="[[stateHistory]]"
-            is-loading-data="[[isLoadingHistoryData]]"
-            up-to-now>
-          </state-history-charts>
-        </div>
-      </template>
-      <paper-dialog-scrollable id='scrollable'>
-        <more-info-content
-          state-obj="[[stateObj]]" hass='[[hass]]'></more-info-content>
-      </paper-dialog-scrollable>
+      <div class='head'>
+        <h2>
+          <state-card-content
+            state-obj="[[stateObj]]"
+            hass='[[hass]]' in-dialog></state-card-content>
+        </h2>
+        <template is='dom-if' if="[[showHistoryComponent]]" restamp>
+          <paper-tabs
+            selected='{{currentTab}}'
+          >
+            <paper-tab>[[computeDomain(stateObj)]]</paper-tab>
+            <paper-tab>History</paper-tab>
+          </paper-tabs>
+        </template>
+      </div>
+      <iron-pages
+        selected='{{currentTab}}'
+        >
+        <paper-dialog-scrollable id='scrollable'>
+          <more-info-content
+            state-obj="[[stateObj]]" hass='[[hass]]'></more-info-content>
+        </paper-dialog-scrollable>
+        <template is='dom-if' if="[[showHistoryComponent]]" restamp>
+          <div>
+            <ha-state-history-data
+              hass='[[hass]]'
+              filter-type='recent-entity'
+              entity-id='[[stateObj.entity_id]]'
+              data='{{stateHistory}}'
+              is-loading='{{stateHistoryLoading}}'
+              cache-config='[[computeCacheConfig(stateObj)]]'
+            ></ha-state-history-data>
+            <state-history-charts
+              history-data="[[stateHistory]]"
+              is-loading-data="[[isLoadingHistoryData]]"
+              up-to-now>
+            </state-history-charts>
+          </div>
+        </template>
+      </iron-pages>
     </paper-dialog>
   </template>
 </dom-module>
@@ -143,6 +175,11 @@ class MoreInfoDialog extends window.hassMixins.EventsMixin(Polymer.Element) {
         type: Boolean,
         value: false,
       },
+
+      currentTab: {
+        type: String,
+        value: '0'
+      }
     };
   }
 
