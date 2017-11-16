@@ -54,6 +54,17 @@
         background-color: var(--secondary-background-color);
       }
 
+      paper-dialog-scrollable {
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+
+      iron-pages {
+        margin-top: 20px;
+        margin-bottom: 5px; 
+      }
+
+
       paper-tabs {
         margin-left: 12px;
         --paper-tabs-selection-bar-color: var(--secondary-text-color);
@@ -61,22 +72,34 @@
         text-transform: uppercase;
       }
 
+      .buttons {
+        display: none;
+      }
+
       @media all and (max-width: 450px), all and (max-height: 500px) {
         paper-dialog {
           margin: 0;
           width: 100%;
-          max-height: calc(100% - 64px);
-
           position: fixed !important;
-          bottom: 0px;
-          left: 0px;
-          right: 0px;
-          overflow: scroll;
+          top: 64px;
+          min-height: calc(100% - 64px);
           border-bottom-left-radius: 0px;
           border-bottom-right-radius: 0px;
         }
         paper-dialog[data-domain=history_graph] {
           width: 100%;
+        }
+        paper-dialog-scrollable {
+          margin-bottom: 56px;
+        }
+        #scrollable {
+          overflow: scroll;
+        }
+        .buttons {
+          display: inherit;
+          position: fixed;
+          bottom: 0px;
+
         }
       }
 
@@ -103,13 +126,12 @@
           </paper-tabs>
         </template>
       </div>
+      <paper-dialog-scrollable>
       <iron-pages
         selected='{{currentTab}}'
         >
-        <paper-dialog-scrollable id='scrollable'>
           <more-info-content
             state-obj="[[stateObj]]" hass='[[hass]]'></more-info-content>
-        </paper-dialog-scrollable>
         <template is='dom-if' if="[[showHistoryComponent]]" restamp>
           <div>
             <ha-state-history-data
@@ -128,6 +150,10 @@
           </div>
         </template>
       </iron-pages>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Dismiss</paper-button>
+      </div>
     </paper-dialog>
   </template>
 </dom-module>
@@ -185,7 +211,6 @@ class MoreInfoDialog extends window.hassMixins.EventsMixin(Polymer.Element) {
 
   connectedCallback() {
     super.connectedCallback();
-    this.$.scrollable.dialogElement = this.$.dialog;
   }
 
   computeDomain(stateObj) {
